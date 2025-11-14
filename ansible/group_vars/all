@@ -3,7 +3,7 @@
 virtualhosts:
   - name: example
     datos:
-      nameserver: www.example.org 
+      nameserver: nginx.example.org 
       documentroot: /var/www/example
       errorlog: error_example
       accesslog: acceses_example
