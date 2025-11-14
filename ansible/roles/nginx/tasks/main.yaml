@@ -75,8 +75,3 @@
     owner: www-data
     group: www-data
 
-- name: Asegurar que Nginx está ejecutándose
-  systemd:
-    name: nginx
-    state: started
-    enabled: yes
