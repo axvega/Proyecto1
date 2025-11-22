@@ -1,5 +1,4 @@
 # Lista con diccionarios para indicar los datos de los virtualhost que se van a crear:
-# apache2
 virtualhosts:
   - name: example
     datos:
@@ -7,12 +6,16 @@ virtualhosts:
       documentroot: /var/www/example
       errorlog: error_example
       accesslog: acceses_example
-
+  - name: wordpress
+    datos:  
+      nameserver: wordpress.example.org  
+      documentroot: "{{ wordpress_path }}"
+      errorlog: error_wordpress
+      accesslog: access_wordpress
 
 # Lista con los módulos que hay que activar
 mods_enabled:
   - rewrite
-
 
 # URL del repositorio
 guestbook_repo_url: "https://github.com/josedom24/guestbook_php.git"
@@ -20,10 +23,17 @@ guestbook_repo_url: "https://github.com/josedom24/guestbook_php.git"
 # Opcional: ruta base donde se alojarán los DocumentRoot
 base_web_path: "/var/www/example"
 
-
 # Variables de conexión a MariaDB para la aplicación guestbook
-
 guestbook_db_host: "mariadb.example.org"
 guestbook_db_user: "guestbook_user"
 guestbook_db_password: "guestbook_pass"
 guestbook_db_name: "guestbook_db"
+
+# Configuración de WordPress
+wordpress_db_name: "wordpress_db"
+wordpress_db_user: "wordpress_user"
+wordpress_db_password: "wordpress_pass123"
+wordpress_db_host: "mariadb.example.org"
+
+# Ruta para WordPress
+wordpress_path: "/var/www/example/wordpress"
