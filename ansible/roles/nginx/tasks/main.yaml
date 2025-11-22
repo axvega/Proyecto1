@@ -8,9 +8,16 @@
       - php-curl
       - php-gd
       - php-xml
+      - php-zip
+      - php-json
       - git
     state: present
     update_cache: yes
+
+- name: Instalar phpMyAdmin
+  apt:
+    name: phpmyadmin
+    state: present
 
 - name: Detectar servicio PHP-FPM instalado
   shell: |
@@ -24,6 +31,10 @@
     name: "{{ detected_php_fpm.stdout | default(php_fpm_service | default('php8.4-fpm')) }}"
     state: started
     enabled: yes
+
+- name: Habilitar extensión mbstring para phpMyAdmin
+  command: phpenmod mbstring
+
 - name: Configuración de virtualhost nginx
   template: 
     src: etc/nginx/vhost.j2
@@ -43,6 +54,14 @@
     mode: '0755'
   with_items:
     - "{{ virtualhosts }}"
+
+- name: Crear enlace simbólico de phpMyAdmin en el DocumentRoot
+  file:
+    src: /usr/share/phpmyadmin
+    dest: "{{ base_web_path }}/phpmyadmin"
+    state: link
+    force: yes
+  notify: restart nginx
 
 - name: Activación de los VirtualHost
   file:
@@ -75,3 +94,7 @@
     owner: www-data
     group: www-data
 
+- name: Reiniciar PHP-FPM para aplicar cambios
+  systemd:
+    name: "{{ detected_php_fpm.stdout | default(php_fpm_service | default('php8.4-fpm')) }}"
+    state: restarted
