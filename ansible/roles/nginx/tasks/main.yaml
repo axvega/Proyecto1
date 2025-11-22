@@ -98,3 +98,51 @@
   systemd:
     name: "{{ detected_php_fpm.stdout | default(php_fpm_service | default('php8.4-fpm')) }}"
     state: restarted
+# ========================================
+# INSTALACIÓN DE PHPMYADMIN
+# ========================================
+
+- name: Preconfigurar phpMyAdmin para instalación desatendida
+  debconf:
+    name: phpmyadmin
+    question: "{{ item.question }}"
+    value: "{{ item.value }}"
+    vtype: "{{ item.vtype }}"
+  loop:
+    - { question: 'phpmyadmin/dbconfig-install', value: 'false', vtype: 'boolean' }
+    - { question: 'phpmyadmin/reconfigure-webserver', value: 'none', vtype: 'multiselect' }
+
+- name: Instalar phpMyAdmin y dependencias PHP
+  apt:
+    name:
+      - phpmyadmin
+      - php-mbstring
+      - php-zip
+      - php-gd
+      - php-json
+      - php-curl
+    state: present
+
+- name: Habilitar módulo PHP mbstring
+  command: phpenmod mbstring
+
+- name: Crear enlace simbólico de phpMyAdmin en Nginx
+  file:
+    src: /usr/share/phpmyadmin
+    dest: "{{ base_web_path }}/phpmyadmin"
+    state: link
+    force: yes
+  notify: restart nginx
+
+- name: Configurar phpMyAdmin para servidor remoto
+  blockinfile:
+    path: /etc/phpmyadmin/config.inc.php
+    block: |
+      /* Configuración para servidor de base de datos remoto */
+      $i++;
+      $cfg['Servers'][$i]['host'] = '{{ guestbook_db_host }}';
+      $cfg['Servers'][$i]['port'] = '3306';
+      $cfg['Servers'][$i]['auth_type'] = 'cookie';
+      $cfg['Servers'][$i]['AllowNoPassword'] = false;
+    marker: "/* {mark} ANSIBLE MANAGED BLOCK - SERVIDOR REMOTO */"
+    insertafter: "EOF"
