@@ -147,6 +147,11 @@
     marker: "/* {mark} ANSIBLE MANAGED BLOCK - SERVIDOR REMOTO */"
     insertafter: "EOF"
 
+# ========================================
+# INSTALACIÓN DE WORDPRESS
+# ========================================
+
+
 - name: Descargar WordPress
   get_url:
     url: https://wordpress.org/latest.tar.gz
